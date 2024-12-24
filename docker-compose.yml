@@ -1,0 +1,28 @@
+version: '3'
+services:
+  node-app:
+    build: .
+    ports:
+      - "3000:3000"  # Maps container port 3000 to host port 3000
+    volumes:
+      - .:/usr/src/app  # Mounts the expresstut folder to /usr/src/app in the container
+      - /usr/src/app/node_modules  # Prevents overwriting the container's node_modules
+    working_dir: /usr/src/app  # Sets the working directory inside the container
+    command: npm start  # Runs the app using npm start
+    depends_on:
+      - mongodb  # Ensure MongoDB starts before the Node app
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017/books
+    environment:
+      NODE_ENV: development  # Sets the Node.js environment to development
+
+  mongodb:
+    image: mongo:6
+    container_name: mongodb
+    ports:
+      - "27017:27017"  # Expose MongoDB on default port
+    volumes:
+      - mongodb-data:/data/db  # Persist MongoDB data
+
+volumes:
+  mongodb-data:
