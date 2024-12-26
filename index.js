@@ -6,7 +6,7 @@ const genreRouter = require('./routes/genre.js');
 const {connectMongo} = require("./db_connection.js");
 const app = express()
 const port = 3000
-connectMongo();
+// connectMongo();
 
 app.use(express.json());
 app.use("/books",bookRouter);

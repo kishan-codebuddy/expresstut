@@ -6,6 +6,7 @@ WORKDIR /usr/src/app
 
 # Install nodemon globally
 RUN npm install -g nodemon
+
 # Copy package.json and package-lock.json to the working directory
 COPY package*.json ./
 
@@ -15,7 +16,10 @@ RUN npm install
 # Copy the rest of the application files
 COPY . .
 
-# Expose the port your app runs on (e.g., 3000)
+# Generate Prisma client during build
+RUN npx prisma generate
+
+# Expose the port your app runs on
 EXPOSE 3000
 
 # Command to run your app

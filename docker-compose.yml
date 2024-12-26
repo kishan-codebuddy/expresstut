@@ -8,11 +8,11 @@ services:
       - .:/usr/src/app  # Mounts the expresstut folder to /usr/src/app in the container
       - /usr/src/app/node_modules  # Prevents overwriting the container's node_modules
     working_dir: /usr/src/app  # Sets the working directory inside the container
-    command: npm start  # Runs the app using npm start
+    command: nodemon index.js  # Runs the app using npm start
     depends_on:
       - mongodb  # Ensure MongoDB starts before the Node app
     environment:
-      - MONGO_URI=mongodb://mongodb:27017/books
+      - MONGO_URI=mongodb://mongodb:27017/books?directConnection=true&replicaSet=rs0
     environment:
       NODE_ENV: development  # Sets the Node.js environment to development
 
@@ -23,6 +23,22 @@ services:
       - "27017:27017"  # Expose MongoDB on default port
     volumes:
       - mongodb-data:/data/db  # Persist MongoDB data
+      - ./mongo-keyfile:/etc/mongodb-keyfile:ro # Mount the keyfile
+    command: ["mongod", "--noauth", "--replSet", "rs0","--bind_ip_all"] # Used  keyfile for internal authentication
+
+  mongo-init:
+    image: mongo:latest
+    restart: "no"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    command: >
+      mongosh --host mongodb:27017 --eval '
+      rs.initiate({
+        _id: "rs0",
+        members: [{ _id: 0, host: "mongodb:27017" }]
+      })
+      '
 
 volumes:
   mongodb-data:

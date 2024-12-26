@@ -1,12 +1,22 @@
-const express = require('express')
+const express = require('express');
 const router = express.Router();
-const Genre = require("./../models/genre");
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
+// Create Genre
 router.post('/', async (req, res) => {
     try {
-        const genre = new Genre(req.body);
-        const result = await genre.save();
-        res.status(201).json(result);
+        const { name, description } = req.body;
+        
+        // Create genre using Prisma
+        const genre = await prisma.genre.create({
+            data: {
+                name,
+                description
+            }
+        });
+        
+        res.status(201).json(genre);
     } catch (err) {
         res.status(400).json({ error: err.message });
     }
@@ -15,7 +25,7 @@ router.post('/', async (req, res) => {
 // Read All Genres
 router.get('/', async (req, res) => {
     try {
-        const genres = await Genre.find();
+        const genres = await prisma.genre.findMany();
         res.json(genres);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -25,8 +35,14 @@ router.get('/', async (req, res) => {
 // Read Single Genre
 router.get('/:id', async (req, res) => {
     try {
-        const genre = await Genre.findById(req.params.id);
+        const genre = await prisma.genre.findUnique({
+            where: {
+                id: req.params.id
+            }
+        });
+        
         if (!genre) return res.status(404).send('Genre not found');
+        
         res.json(genre);
     } catch (err) {
         res.status(500).json({ error: err.message });
@@ -36,8 +52,21 @@ router.get('/:id', async (req, res) => {
 // Update Genre
 router.put('/:id', async (req, res) => {
     try {
-        const genre = await Genre.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
+        const { name, description } = req.body;
+        
+        // Update genre using Prisma
+        const genre = await prisma.genre.update({
+            where: {
+                id: req.params.id
+            },
+            data: {
+                name,
+                description
+            }
+        });
+        
         if (!genre) return res.status(404).send('Genre not found');
+        
         res.json(genre);
     } catch (err) {
         res.status(400).json({ error: err.message });
@@ -45,13 +74,20 @@ router.put('/:id', async (req, res) => {
 });
 
 // Delete Genre
-router.delete('/genres/:id', async (req, res) => {
+router.delete('/:id', async (req, res) => {
     try {
-        const genre = await Genre.findByIdAndDelete(req.params.id);
+        const genre = await prisma.genre.delete({
+            where: {
+                id: req.params.id
+            }
+        });
+        
         if (!genre) return res.status(404).send('Genre not found');
+        
         res.send('Genre deleted');
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
 });
+
 module.exports = router;
