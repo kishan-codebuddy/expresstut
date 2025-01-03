@@ -4,7 +4,7 @@ generator client {
 
 datasource db {
   provider = "mongodb"
-  url      = "mongodb://mongodb:27017/books?directConnection=true&replicaSet=rs0"
+  url      = process.env.DATABASE_URL
 }
 
 model Book {

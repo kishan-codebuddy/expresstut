@@ -11,8 +11,13 @@
   "license": "ISC",
   "dependencies": {
     "@prisma/client": "^6.1.0",
+    "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.9.2",
+    "infisical": "^1.0.46",
+    "infisical-node": "^1.5.1",
+    "mongoose": "^8.9.2"
+  },
+  "devDependencies": {
     "prisma": "^6.1.0"
   }
 }
